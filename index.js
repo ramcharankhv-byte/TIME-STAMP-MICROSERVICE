@@ -33,21 +33,24 @@ app.get("/api", (req, res) => {
 
 app.get("/api/:date", (req, res) => {
   const { date } = req.params;
+  let parsedDate;
 
-  // 1. Check if the input is a pure Unix timestamp string (only digits)
-  // 2. Parse into a valid Date object
-  const parsedDate = /^\d+$/.test(date)
-    ? new Date(parseInt(date))
-    : new Date(date);
-
-  // 3. Validate the Date object
-  if (isNaN(parsedDate.getTime())) {
-    return res.status(400).json({ error: "Invalid Date" });
+  // Handles Test 4: Check if string is pure numbers (millisecond Unix timestamp)
+  if (/^\d+$/.test(date)) {
+    parsedDate = new Date(parseInt(date));
+  } else {
+    // Handles Test 5: Fallback to standard date string parsing
+    parsedDate = new Date(date);
   }
 
-  // 4. Send successful JSON response
+  // Handles the invalid date test specification
+  if (isNaN(parsedDate.getTime())) {
+    return res.json({ error: "Invalid Date" });
+  }
+
+  // Handles Test 2: Output matching type definitions
   res.json({
-    unix: Math.floor(parsedDate.getTime() / 1000),
+    unix: parsedDate.getTime(),
     utc: parsedDate.toUTCString(),
   });
 });
